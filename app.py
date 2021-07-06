@@ -113,7 +113,7 @@ def callback():
         </div>
       </div>
       """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'], response.body['merchant_id'])
-      return render_template("base.html", content=content)
+      return render_template("authorize.html", content=content)
     # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
     else:
       content = """
@@ -124,7 +124,7 @@ def callback():
           <h1>Code exchange failed</h1>
         </div>
       </div>"""
-      return render_template("base.html", content=content)
+      return render_template("authorize.html", content=content)
 
   # The request to the Redirect URL did not include an authorization code. Something went wrong.
   else:
@@ -136,4 +136,4 @@ def callback():
         <h1>Authorization failed</h1>
       </div>
     </div>"""
-    return render_template("base.html", content=content)
+    return render_template("authorize.html", content=content)
