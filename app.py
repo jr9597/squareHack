@@ -23,6 +23,7 @@
 from flask import Flask, request, render_template
 from square.client import Client
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
 import os;
 
 load_dotenv()  # take environment variables from .env.
@@ -33,7 +34,11 @@ client = Client(
 )
 obtain_token = client.o_auth.obtain_token
 
+#THIS APP is the root of all
 app = Flask(__name__)
+
+#Telling Flask where app's database is located 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///orderboard.db'
 
 # Your application's ID and secret, available from your application dashboard.
 application_id = os.getenv('SQ_APPLICATION_ID')
@@ -41,18 +46,29 @@ application_secret = os.getenv('SQ_APPLICATION_SECRET')
 
 base_url = "https://connect.squareup.com" if environment == "production" else "https://connect.squareupsandbox.com"
 
-# Serves the link that merchants click to authorize your application
-@app.route('/', methods=['GET'])
+#database stuff WIP
+# db = SQLAlchemy(app)
+# class Seller(db.Model):
+#   sellerID: db.Column(db.String(), nullable = False, primary_key = True)
+#   name: db.Column(db.String(), nullable = False)
+
+
+
+@app.route('/')
+def home():
+  return render_template("home.html")
+
+@app.route('/authorization', methods=['GET'])
 def authorize():
   url = "{0}/oauth2/authorize?client_id={1}".format(base_url, application_id)
   content = """
-  <div class='wrapper'>
+  <div class='text-justify'>
     <a class='btn'
      href='{}'>
        <strong>Authorize</strong>
     </a>
   </div>""".format(url)
-  return render_template("base.html", content=content)
+  return render_template("authorize.html", content=content)
 
 # Serves requsts from Square to your application's redirect URL
 # Note that you need to set your application's Redirect URL to
