@@ -26,12 +26,20 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 import os;
 
-load_dotenv()  # take environment variables from .env.
+from square.client import Client
+
 
 environment = os.getenv('SQ_ENVIRONMENT')
+
 client = Client(
-  environment = environment
-)
+    square_version='2021-06-16',
+    access_token='AccessToken',
+    environment = 'sandbox',
+    custom_url = 'https://connect.squareup.com',)
+
+load_dotenv()  # take environment variables from .env.
+
+
 obtain_token = client.o_auth.obtain_token
 
 #THIS APP is the root of all
@@ -51,6 +59,7 @@ base_url = "https://connect.squareup.com" if environment == "production" else "h
 # class Seller(db.Model):
 #   sellerID: db.Column(db.String(), nullable = False, primary_key = True)
 #   name: db.Column(db.String(), nullable = False)
+
 
 
 

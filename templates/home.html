@@ -1,1 +1,36 @@
 {% extends 'base.html' %}
+
+
+{% block itemList %}
+<table class="table table-hover table-dark table-striped">
+    <thead>
+        <tr>
+            <!-- Your Columns HERE -->
+            <th scope="col">&#x1F525; Top Sellers of the Week</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Your rows inside the table HERE: -->
+            <tr>
+                <tn></t><td>itemsHere</td>
+                
+            </tr>
+    </tbody>
+</table>
+<!-- {% for item in items %} -->
+
+<!-- {% endfor %} -->
+{% endblock %}
+
+
+
+{% block storeCard %}
+<div class="card" style="width: 18rem;">
+    <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+    <div class="card-body">
+      <h5 class="card-title">Card title</h5>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+{% endblock %}
