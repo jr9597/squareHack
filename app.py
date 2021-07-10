@@ -98,6 +98,14 @@ def authorize():
   </div>""".format(url)
   return render_template("authorize.html", content=content)
 
+
+# @app.route('/search/<string:id>')
+# def search(id):
+#   seller_to_show = Seller.query
+
+
+
+
 # Serves requsts from Square to your application's redirect URL
 # Note that you need to set your application's Redirect URL to
 # http://localhost:8080/callback from your application dashboard
