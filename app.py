@@ -63,8 +63,27 @@ base_url = "https://connect.squareup.com" if environment == "production" else "h
 
 
 
-@app.route('/')
+@app.route('/',methods=['GET', 'POST'])
 def home():
+    # Assuming "Seller" is the name of the model
+    # if request.method == 'POST':
+    #     task_content = request.form['content']
+    #     if task_content = ""
+    #         return render_template("home.html")
+    #     new_task = Seller(content=task_content)
+
+    #     try:
+    #         db.session.add(new_task)
+    #         db.session.commit()
+    #         tasks = Seller.query.order_by(Seller.date_created).all()
+    #         return render_template("search.html")
+    #     except:
+    #         return 'There was an issue adding your task'
+
+    # else:
+    #     tasks = Todo.query.order_by(Todo.date_created).all()
+    #     return render_template('index.html', tasks=tasks)
+
   return render_template("home.html")
 
 @app.route('/authorization', methods=['GET'])
