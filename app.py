@@ -26,7 +26,6 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 import os;
 
-from square.client import Client
 
 
 environment = os.getenv('SQ_ENVIRONMENT')
@@ -38,32 +37,35 @@ client = Client(
     custom_url = 'https://connect.squareup.com',)
 
 load_dotenv()  # take environment variables from .env.
+# obtain_token = client.o_auth.obtain_token
+# merchants_api = client.merchants
 
 
-obtain_token = client.o_auth.obtain_token
-
-#THIS APP is the root of all
 app = Flask(__name__)
-
-#Telling Flask where app's database is located 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///orderboard.db'
 
 # Your application's ID and secret, available from your application dashboard.
 application_id = os.getenv('SQ_APPLICATION_ID')
 application_secret = os.getenv('SQ_APPLICATION_SECRET')
-
 base_url = "https://connect.squareup.com" if environment == "production" else "https://connect.squareupsandbox.com"
 
-#database stuff WIP
-# db = SQLAlchemy(app)
-# class Seller(db.Model):
-#   sellerID: db.Column(db.String(), nullable = False, primary_key = True)
-#   name: db.Column(db.String(), nullable = False)
+
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sellerinfo.db'
+db = SQLAlchemy(app)
+
+class Seller(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name: db.Column(db.String(), nullable = False)
+  accessToken: db.Column(db.String(), nullable = False)
+  refreshToken: db.Column(db.String(), nullable = False)
+  merchantID: db.Column(db.String(), nullable = False)
+  locations: db.Column(db.String())
+  def __repr__(self):
+        return '<Seller %r>' % self.name
 
 
 
-
-@app.route('/',methods=['GET', 'POST'])
+@app.route('/',methods=['GET'])
 def home():
     # Assuming "Seller" is the name of the model
     # if request.method == 'POST':
@@ -123,7 +125,8 @@ def callback():
     body['code'] = authorization_code
     body['grant_type'] = 'authorization_code'
 
-    response = obtain_token(body)
+    o_auth_api = client.o_auth
+    response = o_auth_api.obtain_token(body)
 
     if response.body:
 
@@ -149,6 +152,16 @@ def callback():
         </div>
       </div>
       """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'], response.body['merchant_id'])
+      
+      client.access_token = response.body['access_token']
+      merchants_api = client.merchants
+      merchantAPICall = merchants_api.retrieve_merchant(response.body['merchant_id'])
+      print(merchantAPICall.body)
+      # merchantName = merchantAPICall.body['business_name']
+      # sellerAdded = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName)
+      
+      # db.session.add(sellerAdded)
+      # db.session.commit()
       return render_template("authorize.html", content=content)
     # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
     else:

@@ -33,7 +33,7 @@
             <span><a style="display: block; position: absolute; top: 0px; right: 0px;margin:auto; text-align:right; color:black; font-size:1.3vw" href="{{ url_for('authorize') }}">Seller Sign-up</a></span>
 
           </header>
-          <form action="#" class="domain-form" method="POST">
+          <form action="{{ url_for('search') }}" class="domain-form">
             <div class="form-group d-md-flex"> <input type="text"  style= "padding-right:3px" placeholder="Search for a brand!"> <input type="submit" class="search-domain btn btn-primary px-3" value="Search"> </div>
         </form> 
         
