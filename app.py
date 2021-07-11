@@ -189,16 +189,14 @@ def callback():
       locations_api = tempClient.locations
       locationListData = locations_api.list_locations()
       print(locationListData)
-      print('wassup')
-      print(locationListData['locations'])
 
       for locationListItem in locationListData['locations']:
 
         locationToAdd = Location(location_id = locationListItem['id'], address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
-        sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'])
-        sellerToAdd.locations.append(locationToAdd)
-        db.session.add(sellerToAdd)
-        db.session.commit()
+      sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'])
+      sellerToAdd.locations.append(locationToAdd)
+      db.session.add(sellerToAdd)
+      db.session.commit()
 
 
 
