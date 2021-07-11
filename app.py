@@ -53,15 +53,35 @@ base_url = "https://connect.squareup.com" if environment == "production" else "h
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sellerinfo.db'
 db = SQLAlchemy(app)
 
+
+
+sellersAndLocations = db.Table('sellersAndLocations',
+    db.Column('seller_id', db.Integer, db.ForeignKey('sellers.id')),
+    db.Column('location_id', db.Integer, db.ForeignKey('locations.id'))
+)
+
 class Seller(db.Model):
+  __tablename__ = 'sellers'
   id = db.Column(db.Integer, primary_key=True)
-  name: db.Column(db.String(), nullable = False)
-  accessToken: db.Column(db.String(), nullable = False)
-  refreshToken: db.Column(db.String(), nullable = False)
-  merchantID: db.Column(db.String(), nullable = False)
-  locations: db.Column(db.String())
-  def __repr__(self):
-        return '<Seller %r>' % self.name
+  name= db.Column(db.String(), nullable = False)
+  access_token= db.Column(db.String())
+  refresh_token= db.Column(db.String(), nullable = False)
+  merchant_id= db.Column(db.String(), nullable = False)
+  locations = db.relationship("Location",
+                    secondary=sellersAndLocations)
+
+
+class Location(db.Model):
+  __tablename__ = 'locations'
+  id = db.Column(db.Integer, primary_key=True)
+  address_line_one = db.Column(db.String())
+  state = db.Column(db.String())
+  country = db.Column(db.String())
+  city = db.Column(db.String())
+  postal_code = db.Column(db.Integer)
+  location_id = db.Column(db.String)
+  
+
 
 
 
@@ -154,13 +174,23 @@ def callback():
       
       client.access_token = response.body['access_token']
       merchants_api = client.merchants
-      merchantAPICall = merchants_api.retrieve_merchant(response.body['merchant_id'])
-      print(merchantAPICall.body)
-      merchantName = merchantAPICall.body['business_name']
-      sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName)
-      
-      db.session.add(sellerToAdd)
-      db.session.commit()
+      merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
+      merchantName = merchantData.body['business_name']
+
+
+      locations_api = client.locations
+      locationListData = locations_api.list_locations()
+      for locationListItem in locationListData.body['address']:
+
+        locationToAdd = Location(location_id = locationListItem, address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
+        sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName, )
+        sellerToAdd.locations.append(locationToAdd)
+        db.session.add(sellerToAdd)
+        db.session.commit()
+
+
+
+
       return render_template("authorize.html", content=content)
     # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
     else:

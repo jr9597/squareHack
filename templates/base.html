@@ -41,10 +41,22 @@
 
 
     <div class="domain-form">
-        <div class="form-group d-md-flex"> <input type="text" class="live-search-box" name="content" placeholder="Search for a shop!"></div>
+        <div class="form-group d-md-flex"> <input type="text" class="live-search-box" name="content"
+                placeholder="Search for a shop!"></div>
     </div>
+
     <ul class="live-search-list" style="padding-left: 0px;" type="None">
         <li><a href="#" class="btn btn-dark" style="border: 2px solid #ffffff">Python</a></li>
+        {% for seller in sellers %}
+        {% for location in seller.name %}
+        <li><a href="#" class="btn btn-dark" style="border: 2px solid #ffffff">{{seller.name}} &#x1F525;
+                {{location}}</a></li>
+        <form method="post">
+            <input type="submit" value="Click Me {{seller.name}}">
+        </form>
+        {% endfor %}
+        {% endfor %}
+
         <li>Java</li>
         <li>Javascript</li>
         <li>Golang</li>
