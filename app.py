@@ -20,11 +20,12 @@
 # 5. The Obtain Token endpoint returns an access token your application can use in subsequent requests
 #    to the Connect API.
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from square.client import Client
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
-import os;
+import os
+import json
 
 
 
@@ -33,8 +34,8 @@ environment = os.getenv('SQ_ENVIRONMENT')
 client = Client(
     square_version='2021-06-16',
     access_token='AccessToken',
-    environment = 'sandbox',
-    custom_url = 'https://connect.squareup.com',)
+    environment = 'sandbox',# for production -> sandbox
+    custom_url = 'connect.squareupsandbox.com',) # for production -> connect.squareup.com
 
 load_dotenv()  # take environment variables from .env.
 # obtain_token = client.o_auth.obtain_token
@@ -172,18 +173,29 @@ def callback():
       </div>
       """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'], response.body['merchant_id'])
       
-      client.access_token = response.body['access_token']
-      merchants_api = client.merchants
+      #client.access_token = response.body['access_token']
+      tempClient = Client(
+      square_version='2021-06-16',
+      access_token=response.body['access_token'],
+      environment = 'sandbox',# for production -> sandbox
+      custom_url = 'connect.squareupsandbox.com',)
+
+      merchants_api = tempClient.merchants
       merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
-      merchantName = merchantData.body['business_name']
+      print(merchantData)
+      merchantName = merchantData.body['merchant']['business_name']
+      print(merchantName)
 
-
-      locations_api = client.locations
+      locations_api = tempClient.locations
       locationListData = locations_api.list_locations()
-      for locationListItem in locationListData.body['address']:
+      print(locationListData)
+      print('wassup')
+      print(locationListData['locations'])
 
-        locationToAdd = Location(location_id = locationListItem, address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
-        sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName, )
+      for locationListItem in locationListData['locations']:
+
+        locationToAdd = Location(location_id = locationListItem['id'], address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
+        sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'])
         sellerToAdd.locations.append(locationToAdd)
         db.session.add(sellerToAdd)
         db.session.commit()
