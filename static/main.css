@@ -37,8 +37,14 @@ body {
 .domain-form .form-group {
     
     border: 0px solid #000000;
-    padding: 7px
+    padding: 2px;
+    text-align: center;
     
+}
+
+.list-option {
+  border: 1px solid #000000;
+  padding-left:0px
 }
 
 .domain-form .form-group input {

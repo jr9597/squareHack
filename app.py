@@ -67,7 +67,9 @@ class Seller(db.Model):
 
 @app.route('/')
 def home():
-  return render_template('home.html')
+  sellers = Seller.query.all()
+  print(sellers)
+  return render_template('home.html', sellers = sellers)
   # task_content = request.args.get['content']
   # if task_content == "":
   #   return render_template("home.html")
