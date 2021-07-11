@@ -65,28 +65,23 @@ class Seller(db.Model):
 
 
 
-@app.route('/',methods=['GET'])
+@app.route('/')
 def home():
-    # Assuming "Seller" is the name of the model
-    # if request.method == 'POST':
-    #     task_content = request.form['content']
-    #     if task_content = ""
-    #         return render_template("home.html")
-    #     new_task = Seller(content=task_content)
+  return render_template('home.html')
+  # task_content = request.args.get['content']
+  # if task_content == "":
+  #   return render_template("home.html")
+  # else:
+  #   try:
+  #     # sellers = Seller.query.filter_by(name='content')
+  #     seller = "hi"
+  #     return render_template("search.html", sellers = seller )
+  #   except:
+  #     return render_template('home.html')
+  
 
-    #     try:
-    #         db.session.add(new_task)
-    #         db.session.commit()
-    #         tasks = Seller.query.order_by(Seller.date_created).all()
-    #         return render_template("search.html")
-    #     except:
-    #         return 'There was an issue adding your task'
 
-    # else:
-    #     tasks = Todo.query.order_by(Todo.date_created).all()
-    #     return render_template('index.html', tasks=tasks)
 
-  return render_template("home.html")
 
 @app.route('/authorization', methods=['GET'])
 def authorize():
@@ -105,7 +100,9 @@ def authorize():
 # def search(id):
 #   seller_to_show = Seller.query
 
-
+@app.route('/search')
+def search():
+  return render_template("search.html")
 
 
 # Serves requsts from Square to your application's redirect URL
@@ -157,11 +154,11 @@ def callback():
       merchants_api = client.merchants
       merchantAPICall = merchants_api.retrieve_merchant(response.body['merchant_id'])
       print(merchantAPICall.body)
-      # merchantName = merchantAPICall.body['business_name']
-      # sellerAdded = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName)
+      merchantName = merchantAPICall.body['business_name']
+      sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'], name = merchantName)
       
-      # db.session.add(sellerAdded)
-      # db.session.commit()
+      db.session.add(sellerToAdd)
+      db.session.commit()
       return render_template("authorize.html", content=content)
     # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
     else:
