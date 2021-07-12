@@ -116,7 +116,7 @@ def home():
       custom_url='connect.squareupsandbox.com')
     orders_api = tempClient.orders
     body = {}
-    body['location_ids'] = locationID #"LBG22PC6J5XKG"
+    body['location_ids'] = [locationID] #"LBG22PC6J5XKG"
     print('LOCATIONID')
     print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
@@ -156,17 +156,11 @@ def search():
     locationID = ""
     counter = 0
     for letter in sellerLocationIDs:
-      counter += 1
       if letter == ',':
+        sellerID += sellerLocationIDs[0:counter]
+        locationID += sellerLocationIDs[counter + 1:len(sellerLocationIDs)]
         break
-
-    for i in range(len(sellerLocationIDs)):
-      if i < counter:
-        sellerID += sellerLocationIDs[i] 
-      if i > counter:
-        locationID += sellerLocationIDs[i]
-      if i == counter:
-        pass
+      counter += 1
 
     
     currentSeller = Seller.query.filter_by(merchant_id = sellerID)
@@ -207,7 +201,7 @@ def callback():
         body['client_secret'] = application_secret
         body['code'] = authorization_code
         body['grant_type'] = 'authorization_code'
-        # body['scopes']='ORDERS_READ'
+        body['scopes']='ORDERS_READ'
 
         o_auth_api = client.o_auth
         response = o_auth_api.obtain_token(body)
