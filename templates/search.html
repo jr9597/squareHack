@@ -6,13 +6,13 @@
     <thead class="thead-light">
         <tr>
             <!-- Your Columns HERE -->
-            <th scope="col" style="font-size:1.2em">&#x1F525; {{sellerName}} &#x1F525; {{locationName.address_line_one}} {{locationName.city}} {{locationName.state}}</th>
+            <th scope="col" style="font-size:1.2em">&#x1F525; {{sellerName}} &#x1F525; <br><span style ="font-size: 1em">{{locationName.address_line_one}} {{locationName.city}} {{locationName.state}}</span></th>
         </tr>
     </thead>
     <tbody>
         {% for i in sortedOrders %}
         <tr>
-            <td style="font-size: 1.2em">{{loop.index}}. {{i[0]}}</td>
+            <td style="font-size: 1em">{{loop.index}}. {{i[0]}}</td>
         </tr>
         {% endfor %}
     </tbody>
