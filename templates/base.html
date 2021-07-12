@@ -8,33 +8,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Document</title>
-
-
+    <title>BENU</title>
 
 </head>
 
-<body>
 
+<body>
     <header>
         <div style="margin:auto">
             <h1 style="font-size:6vw; text-align: center">BENU</h1>
-            <h3 style="font-size:1vw; text-align: center;">Check out Your Fav Place's Best Sellers in Different
+            <h3 style="font-size:1vw; text-align: center;">Check Out your Fav Place's Best Sellers in Different
                 Locations</h3>
-
         </div>
-
         <span><a style="display: block; position: absolute; top: 0px; right: 0px;margin:auto; text-align:right; color:black; font-size:1.3vw"
                 href="{{ url_for('authorize') }}">Seller Sign-up</a></span>
-
     </header>
-
-
-
-
 
     <div class="domain-form">
         <div class="form-group d-md-flex"> <input type="text" class="live-search-box" name="content"
@@ -51,44 +40,34 @@
         <li>
             <form action = "{{ url_for('search') }}" method="POST"> <input type="text" value = "{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}" style="padding-right:3px" name="content" hidden> <P hidden>{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}</P><input type="submit" class="btn btn-light" style="border: 2px solid #ffffff" value="{{seller.name}} &#x1F525 {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}"></form> 
         </li>
-
         {% endfor %}
         {% endfor %}
-
     </ul>
+
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
 
             $('.live-search-list li').each(function () {
                 $(this).attr('data-search-term', $(this).text().toLowerCase(), $(this).hide());
             });
-
             $('.live-search-box').on('keyup', function () {
-
                 var searchTerm = $(this).val().toLowerCase();
-
                 $('.live-search-list li').each(function () {
-
                     if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
                         $(this).show();
                     } else {
                         $(this).hide();
                     }
                 });
-
             });
-
         });
     </script>
 
 
-    <!-- {% block storeCard %}
-    {% endblock %} -->
     {% block itemList %}
     {% endblock %}
 
