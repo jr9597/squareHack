@@ -102,13 +102,9 @@ def home():
         break
       counter += 1
 
-    print("HERE")
-    print(sellerID)
-    print(locationID)
-    print("THERE")
     currentSeller = Seller.query.get(sellerID)
-    print()
-    print(currentSeller)
+    currentLocation = Location.query.get(locationID)
+
     currentAccessToken = currentSeller.access_token
     tempClient = Client(
       square_version='2021-06-16',
@@ -116,30 +112,28 @@ def home():
       environment='sandbox',  # for production -> sandbox
       custom_url='connect.squareupsandbox.com')
     orders_api = tempClient.orders
+
     body = {}
     body['location_ids'] = [locationID] #"LBG22PC6J5XKG"
-    print('LOCATIONID')
-    print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
-
+    print (searchOrdersData)
     itemDict = {}
-    print(searchOrdersData)
-
-    for order in searchOrdersData['orders']:
-      for i in range(len(order['line_items'])):
-        itemName = order['line_items'][i]['name']
-        itemQuantity = int(order['line_items'][i]['quantity'])
-        if itemDict.get(itemName) == None:
-          itemDict[itemName] = itemQuantity
-        else:
-          itemDict[itemName] = itemDict[itemName] + itemQuantity
-
-    print(itemDict)
+    if searchOrdersData == {}:
+      pass
+    else:
+      for order in searchOrdersData['orders']:
+        for i in range(len(order['line_items'])):
+          itemName = order['line_items'][i]['name']
+          itemQuantity = int(order['line_items'][i]['quantity'])
+          if itemDict.get(itemName) == None:
+            itemDict[itemName] = itemQuantity
+          else:
+            itemDict[itemName] = itemDict[itemName] + itemQuantity
     
-    sortedOrders = sorted(itemDict.items(), reverse=True)
+    sortedOrders = sorted(itemDict.items(), key=lambda x: x[1], reverse=True)
 
     sellers = Seller.query.all()
-    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerID = sellerID, locationID = locationID)
+    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerName = currentSeller.name, locationName = currentLocation)
 
   sellers = Seller.query.all()
   print(sellers)
@@ -166,7 +160,6 @@ def authorize():
 def search():
   if request.method == 'POST':
     sellerLocationIDs = request.form['content']
-    print(sellerLocationIDs)
     sellerID = ""
     locationID = ""
     counter = 0
@@ -178,8 +171,8 @@ def search():
       counter += 1
 
     currentSeller = Seller.query.get(sellerID)
-    print()
-    print(currentSeller)
+    currentLocation = Location.query.get(locationID)
+
     currentAccessToken = currentSeller.access_token
     tempClient = Client(
       square_version='2021-06-16',
@@ -189,29 +182,30 @@ def search():
     orders_api = tempClient.orders
     body = {}
     body['location_ids'] = [locationID] #"LBG22PC6J5XKG"
-    print('LOCATIONID')
-    print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
 
     itemDict = {}
-    print(searchOrdersData)
-
-    for order in searchOrdersData['orders']:
-      for i in range(len(order['line_items'])):
-        itemName = order['line_items'][i]['name']
-        itemQuantity = int(order['line_items'][i]['quantity'])
-        if itemDict.get(itemName) == None:
-          itemDict[itemName] = itemQuantity
-        else:
-          itemDict[itemName] = itemDict[itemName] + itemQuantity
-
-    print(itemDict)
+    if searchOrdersData != None:
+      for order in searchOrdersData['orders']:
+        for i in range(len(order['line_items'])):
+          itemName = order['line_items'][i]['name']
+          itemQuantity = int(order['line_items'][i]['quantity'])
+          if itemDict.get(itemName) == None:
+            itemDict[itemName] = itemQuantity
+          else:
+            itemDict[itemName] = itemDict[itemName] + itemQuantity
     
-    sortedOrders = sorted(itemDict.items(), reverse=True)
+    sortedOrders = sorted(itemDict.items(), key=lambda x: x[1], reverse=True)
 
     sellers = Seller.query.all()
-    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerID = sellerID, locationID = locationID)
+    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerName = currentSeller.name, locationName = currentLocation)
 
+
+
+  # sellers = Seller.query.all()
+  # return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
+  # sellers = Seller.query.all()
+  # return render_template("search.html", sellers)
   
 
 
@@ -222,6 +216,8 @@ def search():
 def callback():
     # Extract the returned authorization code from the URL
     authorization_code = request.args.get('code')
+
+
 
     if authorization_code:
 
