@@ -26,7 +26,3 @@ FLASK_APP=app.py flask run
 3. from app import db
 4. db.create_all()
 5. (to turn off sqlalchemy layering) SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-
-
-<!-- action = "{{ url_for('search') }}" -->
