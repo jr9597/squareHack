@@ -116,7 +116,6 @@ def home():
     body = {}
     body['location_ids'] = [locationID] #"LBG22PC6J5XKG"
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
-    print (searchOrdersData)
     itemDict = {}
     if searchOrdersData == {}:
       pass
@@ -136,7 +135,7 @@ def home():
     return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerName = currentSeller.name, locationName = currentLocation)
 
   sellers = Seller.query.all()
-  print(sellers)
+
   return render_template('home.html', sellers = sellers)
 
 
@@ -239,7 +238,6 @@ def callback():
 
             # Here, instead of printing the access token, your application server should store it securely
             # and use it in subsequent requests to the Connect API on behalf of the merchant.
-            print(response.body)
             content = """
       <div class='wrapper'>
         <div class='messages'>
@@ -270,10 +268,7 @@ def callback():
 
             merchants_api = tempClient.merchants
             merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
-            print(merchantData)
             merchantName = merchantData.body['merchant']['business_name']
-            print(merchantName)
-            print(type(merchantName))
 
             locations_api = tempClient.locations
             locationListData = json.loads(locations_api.list_locations().text)
