@@ -1,24 +1,3 @@
-# app = Flask(__name__)
-
-# @app.route('/')
-# def home():
-#     return 'This is our humble homepage'
-
-
-
-# This sample demonstrates a bare-bones implementation of the Square Connect OAuth flow:
-#
-# 1. A merchant clicks the authorization link served by the root path (http://localhost:8080/)
-# 2. The merchant signs in to Square and submits the Permissions form. Note that if the merchant
-#    is already signed in to Square, and if the merchant has already authorized your application,
-#    the OAuth flow automatically proceeds to the next step without presenting the Permissions form.
-# 3. Square sends a request to your application's Redirect URL
-#    (which should be set to http://localhost:8080/callback on your application dashboard)
-# 4. The server extracts the authorization code provided in Square's request and passes it
-#    along to the Obtain Token endpoint.
-# 5. The Obtain Token endpoint returns an access token your application can use in subsequent requests
-#    to the Connect API.
-
 from flask import Flask, request, render_template, jsonify
 from square.client import Client
 from dotenv import load_dotenv
@@ -83,18 +62,6 @@ def home():
     sellerID = ""
     locationID = ""
     counter = 0
-    # for letter in sellerLocationIDs:
-    #   counter += 1
-    #   if letter == ',':
-    #     break
-
-    # for i in range(len(sellerLocationIDs)):
-    #   if i < counter-1:
-    #     sellerID += sellerLocationIDs[i] 
-    #   elif i > counter-1:
-    #     locationID += sellerLocationIDs[i]
-    #   elif i == counter-1:
-    #     pass
     for letter in sellerLocationIDs:
       if letter == ',':
         sellerID += sellerLocationIDs[0:counter]
@@ -195,16 +162,10 @@ def search():
             itemDict[itemName] = itemDict[itemName] + itemQuantity
     
     sortedOrders = sorted(itemDict.items(), key=lambda x: x[1], reverse=True)
-
     sellers = Seller.query.all()
     return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerName = currentSeller.name, locationName = currentLocation)
 
 
-
-  # sellers = Seller.query.all()
-  # return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
-  # sellers = Seller.query.all()
-  # return render_template("search.html", sellers)
   
 
 
