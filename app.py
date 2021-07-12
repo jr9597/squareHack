@@ -53,31 +53,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sellerinfo.db'
 db = SQLAlchemy(app)
 
 sellersAndLocations = db.Table('sellersAndLocations',
-                               db.Column('seller_id', db.Integer, db.ForeignKey('sellers.id')),
-                               db.Column('location_id', db.Integer, db.ForeignKey('locations.id'))
+                               db.Column('seller_id', db.String(), db.ForeignKey('sellers.merchant_id')),
+                               db.Column('location_id', db.String(), db.ForeignKey('locations.location_id'))
                                )
-
 
 class Seller(db.Model):
     __tablename__ = 'sellers'
-    id = db.Column(db.Integer, primary_key=True)
+    merchant_id = db.Column(db.String(), primary_key=True)
     name = db.Column(db.String(), nullable=False)
     access_token = db.Column(db.String())
     refresh_token = db.Column(db.String(), nullable=False)
-    merchant_id = db.Column(db.String(), nullable=False)
     locations = db.relationship("Location",
                                 secondary=sellersAndLocations)
 
 
 class Location(db.Model):
     __tablename__ = 'locations'
-    id = db.Column(db.Integer, primary_key=True)
+    location_id = db.Column(db.String(), primary_key=True)
     address_line_one = db.Column(db.String())
     state = db.Column(db.String())
     country = db.Column(db.String())
     city = db.Column(db.String())
     postal_code = db.Column(db.Integer)
-    location_id = db.Column(db.String)
 
 
 @app.route('/', methods =['POST', 'GET'])
@@ -85,13 +82,33 @@ def home():
 
   if request.method == 'POST':
     sellerLocationIDs = request.form['content']
+    print(sellerLocationIDs)
+    sellerID = ""
+    locationID = ""
+    counter = 0
+    for letter in sellerLocationIDs:
+      counter += 1
+      if letter == ',':
+        break
+
+    for i in range(len(sellerLocationIDs)):
+      if i < counter:
+        sellerID += sellerLocationIDs[i] 
+      if i > counter:
+        locationID += sellerLocationIDs[i]
+      if i == counter:
+        pass
+    currentSeller = Seller.query.filter_by()
+
+    # tempClient = Client(
+    #   square_version='2021-06-16',
+    #   access_token= 
+    #   environment='sandbox',  # for production -> sandbox
+    #   custom_url='connect.squareupsandbox.com', )
+    # orders_api = tempClient.orders
 
     sellers = Seller.query.all()
-
-
-
-
-    return render_template('search.html', sellers = sellers, sellerLocationIDs = sellerLocationIDs)
+    return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
 
   sellers = Seller.query.all()
   print(sellers)
