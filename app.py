@@ -6,7 +6,7 @@
 
 
 
-    # This sample demonstrates a bare-bones implementation of the Square Connect OAuth flow:
+# This sample demonstrates a bare-bones implementation of the Square Connect OAuth flow:
 #
 # 1. A merchant clicks the authorization link served by the root path (http://localhost:8080/)
 # 2. The merchant signs in to Square and submits the Permissions form. Note that if the merchant
@@ -26,15 +26,13 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import json
 
-
-
 environment = os.getenv('SQ_ENVIRONMENT')
 
 client = Client(
     square_version='2021-06-16',
     access_token='AccessToken',
-    environment = 'sandbox',# for production -> sandbox
-    custom_url = 'connect.squareupsandbox.com',) # for production -> connect.squareup.com
+    environment='sandbox',  # for production -> sandbox
+    custom_url='connect.squareupsandbox.com', )  # for production -> connect.squareup.com
 
 load_dotenv()  # take environment variables from .env.
 # obtain_token = client.o_auth.obtain_token
@@ -51,45 +49,40 @@ application_id = os.getenv('SQ_APPLICATION_ID')
 application_secret = os.getenv('SQ_APPLICATION_SECRET')
 base_url = "https://connect.squareup.com" if environment == "production" else "https://connect.squareupsandbox.com"
 
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sellerinfo.db'
 db = SQLAlchemy(app)
 
-
-
 sellersAndLocations = db.Table('sellersAndLocations',
-    db.Column('seller_id', db.Integer, db.ForeignKey('sellers.id')),
-    db.Column('location_id', db.Integer, db.ForeignKey('locations.id'))
-)
+                               db.Column('seller_id', db.Integer, db.ForeignKey('sellers.id')),
+                               db.Column('location_id', db.Integer, db.ForeignKey('locations.id'))
+                               )
+
 
 class Seller(db.Model):
-  __tablename__ = 'sellers'
-  id = db.Column(db.Integer, primary_key=True)
-  name= db.Column(db.String(), nullable = False)
-  access_token= db.Column(db.String())
-  refresh_token= db.Column(db.String(), nullable = False)
-  merchant_id= db.Column(db.String(), nullable = False)
-  locations = db.relationship("Location",
-                    secondary=sellersAndLocations)
+    __tablename__ = 'sellers'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    access_token = db.Column(db.String())
+    refresh_token = db.Column(db.String(), nullable=False)
+    merchant_id = db.Column(db.String(), nullable=False)
+    locations = db.relationship("Location",
+                                secondary=sellersAndLocations)
 
 
 class Location(db.Model):
-  __tablename__ = 'locations'
-  id = db.Column(db.Integer, primary_key=True)
-  address_line_one = db.Column(db.String())
-  state = db.Column(db.String())
-  country = db.Column(db.String())
-  city = db.Column(db.String())
-  postal_code = db.Column(db.Integer)
-  location_id = db.Column(db.String)
-  
-
-
+    __tablename__ = 'locations'
+    id = db.Column(db.Integer, primary_key=True)
+    address_line_one = db.Column(db.String())
+    state = db.Column(db.String())
+    country = db.Column(db.String())
+    city = db.Column(db.String())
+    postal_code = db.Column(db.Integer)
+    location_id = db.Column(db.String)
 
 
 @app.route('/', methods =['POST', 'GET'])
 def home():
+
   print('1')
   if request.method == 'POST':
     print('2')
@@ -117,15 +110,15 @@ def home():
 
 @app.route('/authorization', methods=['GET'])
 def authorize():
-  url = "{0}/oauth2/authorize?client_id={1}".format(base_url, application_id)
-  content = """
+    url = "{0}/oauth2/authorize?client_id={1}".format(base_url, application_id)
+    content = """
   <div class='text-justify'>
     <a class='btn'
      href='{}'>
        <strong>Authorize</strong>
     </a>
   </div>""".format(url)
-  return render_template("authorize.html", content=content)
+    return render_template("authorize.html", content=content)
 
 
 # @app.route('/search/<string:id>')
@@ -134,7 +127,7 @@ def authorize():
 
 @app.route('/search', methods=['GET'])
 def search():
-  return render_template("search.html")
+    return render_template("search.html")
 
 
 # Serves requsts from Square to your application's redirect URL
@@ -142,27 +135,32 @@ def search():
 # http://localhost:8080/callback from your application dashboard
 @app.route('/callback', methods=['GET'])
 def callback():
+    # Extract the returned authorization code from the URL
+    authorization_code = request.args.get('code')
 
-  # Extract the returned authorization code from the URL
-  authorization_code = request.args.get('code')
-  if authorization_code:
 
-    # Provide the code in a request to the Obtain Token endpoint
-    body = {}
-    body['client_id'] = application_id
-    body['client_secret'] = application_secret
-    body['code'] = authorization_code
-    body['grant_type'] = 'authorization_code'
 
-    o_auth_api = client.o_auth
-    response = o_auth_api.obtain_token(body)
+    if authorization_code:
 
-    if response.body:
+        # Provide the code in a request to the Obtain Token endpoint
+        body = {}
+        body['client_id'] = application_id
+        body['client_secret'] = application_secret
+        body['code'] = authorization_code
+        body['grant_type'] = 'authorization_code'
 
-      # Here, instead of printing the access token, your application server should store it securely
-      # and use it in subsequent requests to the Connect API on behalf of the merchant.
-      print (response.body)
-      content = """
+        o_auth_api = client.o_auth
+        response = o_auth_api.obtain_token(body)
+
+        # dictionary version of response
+        res = json.loads(response.text)
+
+        if response.body:
+
+            # Here, instead of printing the access token, your application server should store it securely
+            # and use it in subsequent requests to the Connect API on behalf of the merchant.
+            print(response.body)
+            content = """
       <div class='wrapper'>
         <div class='messages'>
           <h1>Authorization Succeeded</h1>
@@ -180,41 +178,42 @@ def callback():
           </div>
         </div>
       </div>
-      """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'], response.body['merchant_id'])
-      
+      """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'],
+                 response.body['merchant_id'])
 
-      tempClient = Client(
-      square_version='2021-06-16',
-      access_token=response.body['access_token'],
-      environment = 'sandbox',# for production -> sandbox
-      custom_url = 'connect.squareupsandbox.com',)
+            # client.access_token = response.body['access_token']
+            tempClient = Client(
+                square_version='2021-06-16',
+                access_token=response.body['access_token'],
+                environment='sandbox',  # for production -> sandbox
+                custom_url='connect.squareupsandbox.com', )
 
-      merchants_api = tempClient.merchants
-      merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
-      print(merchantData)
-      merchantName = merchantData.body['merchant']['business_name']
-      print(merchantName)
+            merchants_api = tempClient.merchants
+            merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
+            print(merchantData)
+            merchantName = merchantData.body['merchant']['business_name']
+            print(merchantName)
+            print(type(merchantName))
 
-      locations_api = tempClient.locations
-      locationListData = locations_api.list_locations()
-      print(locationListData)
+            locations_api = tempClient.locations
+            locationListData = json.loads(locations_api.list_locations().text)
 
-      #Iterating through locations from a store's locations to put into database
-      for locationListItem in locationListData['locations']:
-        locationToAdd = Location(location_id = locationListItem['id'], address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
-      
-      sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'])
-      sellerToAdd.locations.append(locationToAdd)
-      db.session.add(sellerToAdd)
-      db.session.commit()
+            for locationListItem in locationListData['locations']:
+                locationToAdd = Location(location_id=(locationListItem['id']),
+                                         address_line_one=locationListItem['address']['address_line_1'],
+                                         city=locationListItem['address']['locality'],
+                                         state=locationListItem['address']['administrative_district_level_1'],
+                                         postal_code=locationListItem['address']['postal_code'])
+            sellerToAdd = Seller(access_token=res['access_token'], merchant_id=res['merchant_id'],
+                                 refresh_token=res['refresh_token'], name=merchantName)
+            sellerToAdd.locations.append(locationToAdd)
+            db.session.add(sellerToAdd)
+            db.session.commit()
 
-
-
-
-      return render_template("authorize.html", content=content)
-    # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
-    else:
-      content = """
+            return render_template("authorize.html", content=content)
+        # The response from the Obtain Token endpoint did not include an access token. Something went wrong.
+        else:
+            content = """
       <link type='text/css' rel='stylesheet' href='static/style.css'>
       <meta name='viewport' content='width=device-width'>
       <div class='wrapper'>
@@ -222,11 +221,11 @@ def callback():
           <h1>Code exchange failed</h1>
         </div>
       </div>"""
-      return render_template("authorize.html", content=content)
+            return render_template("authorize.html", content=content)
 
-  # The request to the Redirect URL did not include an authorization code. Something went wrong.
-  else:
-    content = """
+    # The request to the Redirect URL did not include an authorization code. Something went wrong.
+    else:
+        content = """
     <link type='text/css' rel='stylesheet' href='static/style.css'>
     <meta name='viewport' content='width=device-width'>
     <div class='wrapper'>
@@ -234,4 +233,7 @@ def callback():
         <h1>Authorization failed</h1>
       </div>
     </div>"""
-    return render_template("authorize.html", content=content)
+        return render_template("authorize.html", content=content)
+
+if __name__ == "__main__":
+    app.run(debug=True)
