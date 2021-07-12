@@ -41,9 +41,6 @@ load_dotenv()  # take environment variables from .env.
 
 app = Flask(__name__)
 
-if __name__ == "__main__":
-    app.run(debug=True)
-
 # Your application's ID and secret, available from your application dashboard.
 application_id = os.getenv('SQ_APPLICATION_ID')
 application_secret = os.getenv('SQ_APPLICATION_SECRET')
@@ -131,10 +128,40 @@ def authorize():
 
 
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
-  sellers = Seller.query.all()
-  return render_template("search.html", sellers)
+  if request.method == 'POST':
+    sellerLocationIDs = request.form['content']
+    print(sellerLocationIDs)
+    sellerID = ""
+    locationID = ""
+    counter = 0
+    for letter in sellerLocationIDs:
+      counter += 1
+      if letter == ',':
+        break
+
+    for i in range(len(sellerLocationIDs)):
+      if i < counter:
+        sellerID += sellerLocationIDs[i] 
+      if i > counter:
+        locationID += sellerLocationIDs[i]
+      if i == counter:
+        pass
+    currentSeller = Seller.query.filter_by()
+
+    # tempClient = Client(
+    #   square_version='2021-06-16',
+    #   access_token= 
+    #   environment='sandbox',  # for production -> sandbox
+    #   custom_url='connect.squareupsandbox.com', )
+    # orders_api = tempClient.orders
+
+    sellers = Seller.query.all()
+    return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
+  # sellers = Seller.query.all()
+  # return render_template("search.html", sellers)
+  
 
 
 # Serves requsts from Square to your application's redirect URL
@@ -241,3 +268,5 @@ def callback():
     </div>"""
         return render_template("authorize.html", content=content)
 
+if __name__ == "__main__":
+    app.run(debug=True)
