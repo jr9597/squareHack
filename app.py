@@ -4,8 +4,7 @@
 # def home():
 #     return 'This is our humble homepage'
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+
 
     # This sample demonstrates a bare-bones implementation of the Square Connect OAuth flow:
 #
@@ -43,6 +42,9 @@ load_dotenv()  # take environment variables from .env.
 
 
 app = Flask(__name__)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # Your application's ID and secret, available from your application dashboard.
 application_id = os.getenv('SQ_APPLICATION_ID')
@@ -86,12 +88,19 @@ class Location(db.Model):
 
 
 
-@app.route('/')
+@app.route('/', methods =['POST', 'GET'])
 def home():
+  print('1')
+  if request.method == 'POST':
+    print('2')
+    sellerLocationInfo = request.form['content']
+    print('3')
+    print(sellerLocationInfo)
+    return render_template('search.html', sellerLocationInfo = sellerLocationInfo)
   sellers = Seller.query.all()
   print(sellers)
   return render_template('home.html', sellers = sellers)
-  # task_content = request.args.get['content']
+  # 
   # if task_content == "":
   #   return render_template("home.html")
   # else:
@@ -123,7 +132,7 @@ def authorize():
 # def search(id):
 #   seller_to_show = Seller.query
 
-@app.route('/search')
+@app.route('/search', methods=['GET'])
 def search():
   return render_template("search.html")
 
@@ -173,7 +182,7 @@ def callback():
       </div>
       """.format(response.body['access_token'], response.body['expires_at'], response.body['refresh_token'], response.body['merchant_id'])
       
-      #client.access_token = response.body['access_token']
+
       tempClient = Client(
       square_version='2021-06-16',
       access_token=response.body['access_token'],
@@ -190,9 +199,10 @@ def callback():
       locationListData = locations_api.list_locations()
       print(locationListData)
 
+      #Iterating through locations from a store's locations to put into database
       for locationListItem in locationListData['locations']:
-
         locationToAdd = Location(location_id = locationListItem['id'], address_line_one = locationListItem.body['address']['address_line_1'], city = locationListItem.body['address']['locality'], state = locationListItem.body['address']['administrative_district_level_1'], postal_code = locationListItem.body['address']['postal_code'])
+      
       sellerToAdd = Seller(accessToken = response.body['access_token'], merchantID = response.body['merchant_id'], refreshToken = response.body['refresh_token'])
       sellerToAdd.locations.append(locationToAdd)
       db.session.add(sellerToAdd)

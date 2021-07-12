@@ -4,6 +4,9 @@ Make sure to update requirements txt
 
 #Create a virtual env after installing virtualenv ->
 virtualenv venv
+#Then
+source venv/bin/activate
+
 
 #To install requirements ->
 pip3 install -r requirements.txt 
@@ -23,3 +26,6 @@ FLASK_APP=app.py flask run
 3. from app import db
 4. db.create_all()
 5. (to turn off sqlalchemy layering) SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+
