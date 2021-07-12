@@ -79,7 +79,7 @@ def home():
 
   if request.method == 'POST':
     sellerLocationIDs = request.form['content']
-    print(sellerLocationIDs)
+
     sellerID = ""
     locationID = ""
     counter = 0
@@ -107,11 +107,12 @@ def home():
     print(locationID)
     print("THERE")
     currentSeller = Seller.query.get(sellerID)
+    print()
     print(currentSeller)
     currentAccessToken = currentSeller.access_token
     tempClient = Client(
       square_version='2021-06-16',
-      access_token= currentAccessToken, #'EAAAEHEGnYTqs1JEdznEXtHa888FgUBpaW5KbMfcWuKCzPCosPVBeRjiQiheNyzd'
+      access_token= currentAccessToken,
       environment='sandbox',  # for production -> sandbox
       custom_url='connect.squareupsandbox.com')
     orders_api = tempClient.orders
@@ -120,11 +121,25 @@ def home():
     print('LOCATIONID')
     print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
+
+    itemDict = {}
     print(searchOrdersData)
-    # for order in searchOrdersData['order_entries']:
-    #   print(order)
+
+    for order in searchOrdersData['orders']:
+      for i in range(len(order['line_items'])):
+        itemName = order['line_items'][i]['name']
+        itemQuantity = int(order['line_items'][i]['quantity'])
+        if itemDict.get(itemName) == None:
+          itemDict[itemName] = itemQuantity
+        else:
+          itemDict[itemName] = itemDict[itemName] + itemQuantity
+
+    print(itemDict)
+    
+    sortedOrders = sorted(itemDict.items(), reverse=True)
+
     sellers = Seller.query.all()
-    return render_template('search.html', sellers = sellers, searchOrdersData = searchOrdersData, sellerID = sellerID, locationID = locationID)
+    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerID = sellerID, locationID = locationID)
 
   sellers = Seller.query.all()
   print(sellers)
@@ -162,24 +177,41 @@ def search():
         break
       counter += 1
 
-    
-    currentSeller = Seller.query.filter_by(merchant_id = sellerID)
+    currentSeller = Seller.query.get(sellerID)
+    print()
+    print(currentSeller)
+    currentAccessToken = currentSeller.access_token
     tempClient = Client(
       square_version='2021-06-16',
-      access_token= currentSeller.access_token,
+      access_token= currentAccessToken,
       environment='sandbox',  # for production -> sandbox
       custom_url='connect.squareupsandbox.com')
     orders_api = tempClient.orders
     body = {}
-    body['location_ids'] = locationID
+    body['location_ids'] = [locationID] #"LBG22PC6J5XKG"
+    print('LOCATIONID')
+    print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
-    print("HHIIIII" + searchOrdersData)
 
+    itemDict = {}
+    print(searchOrdersData)
+
+    for order in searchOrdersData['orders']:
+      for i in range(len(order['line_items'])):
+        itemName = order['line_items'][i]['name']
+        itemQuantity = int(order['line_items'][i]['quantity'])
+        if itemDict.get(itemName) == None:
+          itemDict[itemName] = itemQuantity
+        else:
+          itemDict[itemName] = itemDict[itemName] + itemQuantity
+
+    print(itemDict)
+    
+    sortedOrders = sorted(itemDict.items(), reverse=True)
 
     sellers = Seller.query.all()
-    return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
-  # sellers = Seller.query.all()
-  # return render_template("search.html", sellers)
+    return render_template('search.html', sellers = sellers, sortedOrders = sortedOrders, sellerID = sellerID, locationID = locationID)
+
   
 
 
@@ -191,8 +223,6 @@ def callback():
     # Extract the returned authorization code from the URL
     authorization_code = request.args.get('code')
 
-
-
     if authorization_code:
 
         # Provide the code in a request to the Obtain Token endpoint
@@ -201,7 +231,7 @@ def callback():
         body['client_secret'] = application_secret
         body['code'] = authorization_code
         body['grant_type'] = 'authorization_code'
-        body['scopes']='ORDERS_READ'
+        body['scopes']=['ORDERS_READ']
 
         o_auth_api = client.o_auth
         response = o_auth_api.obtain_token(body)
@@ -251,7 +281,7 @@ def callback():
 
             locations_api = tempClient.locations
             locationListData = json.loads(locations_api.list_locations().text)
-            sellerToAdd = Seller(access_token=res['access_token'], merchant_id=res['merchant_id'],
+            sellerToAdd = Seller(access_token='EAAAEM5vhPeIEWE9b0N_jTSuFZXSTFZ5j2fWlflJtkjJCSTWpIFFaxRhQMBPNB43', merchant_id=res['merchant_id'],
                                  refresh_token=res['refresh_token'], name=merchantName)
             for locationListItem in locationListData['locations']:
                 locationToAdd = Location(location_id=(locationListItem['id']),

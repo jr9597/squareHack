@@ -2,6 +2,7 @@
 
 
 {% block itemList %}
+
 <table class="table table-hover table-dark table-striped">
     <thead>
         <tr>
@@ -9,6 +10,9 @@
             <th scope="col" style="font-size: 1.5vw">&#x1F525; Best Sellers from This Location {{sellerID}}{{locationID}}</th>
         </tr>
     </thead>
+    {% for i in sortedItems %}
+    <td>{{i}}</td>
+    {% endfor %}
 </table>
 {% endblock %}
 
@@ -19,7 +23,6 @@
 </div>
 
 <ul class="live-search-list" style="padding-left: 0px;" type="None">
-    <li><a href="#" class="btn btn-dark" style="border: 2px solid #ffffff">Python</a></li>
     {% for seller in sellers %}
     {% for location in seller.locations %}
     <li>
