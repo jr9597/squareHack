@@ -91,18 +91,28 @@ def home():
     for i in range(len(sellerLocationIDs)):
       if i < counter:
         sellerID += sellerLocationIDs[i] 
-      if i > counter:
+      elif i > counter:
         locationID += sellerLocationIDs[i]
-      if i == counter:
+      elif i == counter:
         pass
-    currentSeller = Seller.query.filter_by()
+    print("HERE")
+    print(sellerID)
+    print(type(Seller.query.get(str(sellerID))))
+    print("THERE")
+    currentSeller = Seller.query.get(str(sellerID)).first_or_404()
+    print(currentSeller)
+    currentAccessToken = currentSeller.access_token
+    tempClient = Client(
+      square_version='2021-06-16',
+      access_token= currentAccessToken,
+      environment='sandbox',  # for production -> sandbox
+      custom_url='connect.squareupsandbox.com')
+    orders_api = tempClient.orders
+    body = {}
+    body['location_ids'] = locationID
+    searchOrdersData = json.loads(orders_api.search_orders(body).text)
+    print("HHIIIII" + searchOrdersData)
 
-    # tempClient = Client(
-    #   square_version='2021-06-16',
-    #   access_token= 
-    #   environment='sandbox',  # for production -> sandbox
-    #   custom_url='connect.squareupsandbox.com', )
-    # orders_api = tempClient.orders
 
     sellers = Seller.query.all()
     return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
@@ -148,14 +158,20 @@ def search():
         locationID += sellerLocationIDs[i]
       if i == counter:
         pass
-    currentSeller = Seller.query.filter_by()
 
-    # tempClient = Client(
-    #   square_version='2021-06-16',
-    #   access_token= 
-    #   environment='sandbox',  # for production -> sandbox
-    #   custom_url='connect.squareupsandbox.com', )
-    # orders_api = tempClient.orders
+    
+    currentSeller = Seller.query.filter_by(merchant_id = sellerID)
+    tempClient = Client(
+      square_version='2021-06-16',
+      access_token= currentSeller.access_token,
+      environment='sandbox',  # for production -> sandbox
+      custom_url='connect.squareupsandbox.com')
+    orders_api = tempClient.orders
+    body = {}
+    body['location_ids'] = locationID
+    searchOrdersData = json.loads(orders_api.search_orders(body).text)
+    print("HHIIIII" + searchOrdersData)
+
 
     sellers = Seller.query.all()
     return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
