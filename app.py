@@ -86,6 +86,7 @@ def home():
   if request.method == 'POST':
     sellerLocationInfo = request.form['content']
     print(sellerLocationInfo)
+
     return render_template('search.html', sellerLocationInfo = sellerLocationInfo)
   sellers = Seller.query.all()
   print(sellers)
@@ -118,12 +119,10 @@ def authorize():
     return render_template("authorize.html", content=content)
 
 
-# @app.route('/search/<string:id>')
-# def search(id):
-#   seller_to_show = Seller.query
 
 @app.route('/search', methods=['GET'])
 def search():
+
     return render_template("search.html")
 
 
