@@ -197,16 +197,15 @@ def callback():
 
             locations_api = tempClient.locations
             locationListData = json.loads(locations_api.list_locations().text)
-
+            sellerToAdd = Seller(access_token=res['access_token'], merchant_id=res['merchant_id'],
+                                 refresh_token=res['refresh_token'], name=merchantName)
             for locationListItem in locationListData['locations']:
                 locationToAdd = Location(location_id=(locationListItem['id']),
                                          address_line_one=locationListItem['address']['address_line_1'],
                                          city=locationListItem['address']['locality'],
                                          state=locationListItem['address']['administrative_district_level_1'],
                                          postal_code=locationListItem['address']['postal_code'])
-            sellerToAdd = Seller(access_token=res['access_token'], merchant_id=res['merchant_id'],
-                                 refresh_token=res['refresh_token'], name=merchantName)
-            sellerToAdd.locations.append(locationToAdd)
+                sellerToAdd.locations.append(locationToAdd)
             db.session.add(sellerToAdd)
             db.session.commit()
 
