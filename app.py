@@ -83,11 +83,8 @@ class Location(db.Model):
 @app.route('/', methods =['POST', 'GET'])
 def home():
 
-  print('1')
   if request.method == 'POST':
-    print('2')
     sellerLocationInfo = request.form['content']
-    print('3')
     print(sellerLocationInfo)
     return render_template('search.html', sellerLocationInfo = sellerLocationInfo)
   sellers = Seller.query.all()

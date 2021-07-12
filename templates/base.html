@@ -49,7 +49,7 @@
         {% for seller in sellers %}
         {% for location in seller.locations %}
         <li>
-            <form action = "{{ url_for('search') }}" method="POST"> <input type="text" value = "{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}" style="padding-right:3px" name="content" hidden> <P hidden>{{seller.name}} &#x1F525 {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}</P><input type="submit" class="btn btn-dark" style="border: 2px solid #ffffff" value="{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}"></form> 
+            <form action = "{{ url_for('search') }}" method="POST"> <input type="text" value = "{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}" style="padding-right:3px" name="content" hidden> <P hidden>{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}</P><input type="submit" class="btn btn-light" style="border: 2px solid #ffffff" value="{{seller.name}} &#x1F525 {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}"></form> 
         </li>
 
         {% endfor %}
