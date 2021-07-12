@@ -84,24 +84,18 @@ class Location(db.Model):
 def home():
 
   if request.method == 'POST':
-    sellerLocationInfo = request.form['content']
-    print(sellerLocationInfo)
+    sellerLocationIDs = request.form['content']
 
-    return render_template('search.html', sellerLocationInfo = sellerLocationInfo)
+    sellers = Seller.query.all()
+
+
+
+
+    return render_template('search.html', sellers = sellers, sellerLocationIDs = sellerLocationIDs)
+
   sellers = Seller.query.all()
   print(sellers)
   return render_template('home.html', sellers = sellers)
-  # 
-  # if task_content == "":
-  #   return render_template("home.html")
-  # else:
-  #   try:
-  #     # sellers = Seller.query.filter_by(name='content')
-  #     seller = "hi"
-  #     return render_template("search.html", sellers = seller )
-  #   except:
-  #     return render_template('home.html')
-  
 
 
 
@@ -122,8 +116,8 @@ def authorize():
 
 @app.route('/search', methods=['GET'])
 def search():
-
-    return render_template("search.html")
+  sellers = Seller.query.all()
+  return render_template("search.html", sellers)
 
 
 # Serves requsts from Square to your application's redirect URL
@@ -230,5 +224,3 @@ def callback():
     </div>"""
         return render_template("authorize.html", content=content)
 
-if __name__ == "__main__":
-    app.run(debug=True)

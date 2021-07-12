@@ -12,6 +12,43 @@
 </table>
 {% endblock %}
 
-{% block storeCard %}
+{% block storeList %}
+<div class="domain-form">
+    <div class="form-group d-md-flex"> <input type="text" class="live-search-box" name="content"
+            placeholder="Search for a shop!"></div>
+</div>
 
+<ul class="live-search-list" style="padding-left: 0px;" type="None">
+    <li><a href="#" class="btn btn-dark" style="border: 2px solid #ffffff">Python</a></li>
+    {% for seller in sellers %}
+    {% for location in seller.locations %}
+    <li>
+        <form  method="POST"> <input type="text" value = "{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}" style="padding-right:3px" name="content" hidden> <P hidden>{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}</P><input type="submit" class="btn btn-light" style="border: 2px solid #ffffff" value="{{seller.name}} &#x1F525 {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}"></form> 
+    </li>
+    {% endfor %}
+    {% endfor %}
+</ul>
+<!-- action = "{{ url_for('search') }}" -->
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"
+    integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+
+        $('.live-search-list li').each(function () {
+            $(this).attr('data-search-term', $(this).text().toLowerCase(), $(this).hide());
+        });
+        $('.live-search-box').on('keyup', function () {
+            var searchTerm = $(this).val().toLowerCase();
+            $('.live-search-list li').each(function () {
+                if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
