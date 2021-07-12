@@ -32,7 +32,7 @@ client = Client(
     square_version='2021-06-16',
     access_token='AccessToken',
     environment='sandbox',  # for production -> sandbox
-    custom_url='connect.squareupsandbox.com', )  # for production -> connect.squareup.com
+    custom_url='connect.squareupsandbox.com')  # for production -> connect.squareup.com
 
 load_dotenv()  # take environment variables from .env.
 # obtain_token = client.o_auth.obtain_token
@@ -83,39 +83,48 @@ def home():
     sellerID = ""
     locationID = ""
     counter = 0
-    for letter in sellerLocationIDs:
-      counter += 1
-      if letter == ',':
-        break
+    # for letter in sellerLocationIDs:
+    #   counter += 1
+    #   if letter == ',':
+    #     break
 
-    for i in range(len(sellerLocationIDs)):
-      if i < counter:
-        sellerID += sellerLocationIDs[i] 
-      elif i > counter:
-        locationID += sellerLocationIDs[i]
-      elif i == counter:
-        pass
+    # for i in range(len(sellerLocationIDs)):
+    #   if i < counter-1:
+    #     sellerID += sellerLocationIDs[i] 
+    #   elif i > counter-1:
+    #     locationID += sellerLocationIDs[i]
+    #   elif i == counter-1:
+    #     pass
+    for letter in sellerLocationIDs:
+      if letter == ',':
+        sellerID += sellerLocationIDs[0:counter]
+        locationID += sellerLocationIDs[counter + 1:len(sellerLocationIDs)]
+        break
+      counter += 1
+
     print("HERE")
     print(sellerID)
-    print(type(Seller.query.get(str(sellerID))))
+    print(locationID)
     print("THERE")
-    currentSeller = Seller.query.get(str(sellerID)).first_or_404()
+    currentSeller = Seller.query.get(sellerID)
     print(currentSeller)
     currentAccessToken = currentSeller.access_token
     tempClient = Client(
       square_version='2021-06-16',
-      access_token= currentAccessToken,
+      access_token= currentAccessToken, #'EAAAEHEGnYTqs1JEdznEXtHa888FgUBpaW5KbMfcWuKCzPCosPVBeRjiQiheNyzd'
       environment='sandbox',  # for production -> sandbox
       custom_url='connect.squareupsandbox.com')
     orders_api = tempClient.orders
     body = {}
-    body['location_ids'] = locationID
+    body['location_ids'] = locationID #"LBG22PC6J5XKG"
+    print('LOCATIONID')
+    print(locationID)
     searchOrdersData = json.loads(orders_api.search_orders(body).text)
-    print("HHIIIII" + searchOrdersData)
-
-
+    print(searchOrdersData)
+    # for order in searchOrdersData['order_entries']:
+    #   print(order)
     sellers = Seller.query.all()
-    return render_template('search.html', sellers = sellers, sellerID = sellerID, locationID = locationID)
+    return render_template('search.html', sellers = sellers, searchOrdersData = searchOrdersData, sellerID = sellerID, locationID = locationID)
 
   sellers = Seller.query.all()
   print(sellers)
@@ -198,6 +207,7 @@ def callback():
         body['client_secret'] = application_secret
         body['code'] = authorization_code
         body['grant_type'] = 'authorization_code'
+        # body['scopes']='ORDERS_READ'
 
         o_auth_api = client.o_auth
         response = o_auth_api.obtain_token(body)
@@ -236,7 +246,7 @@ def callback():
                 square_version='2021-06-16',
                 access_token=response.body['access_token'],
                 environment='sandbox',  # for production -> sandbox
-                custom_url='connect.squareupsandbox.com', )
+                custom_url='connect.squareupsandbox.com')
 
             merchants_api = tempClient.merchants
             merchantData = merchants_api.retrieve_merchant(response.body['merchant_id'])
