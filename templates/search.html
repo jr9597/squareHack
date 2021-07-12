@@ -6,13 +6,13 @@
     <thead class="thead-light">
         <tr>
             <!-- Your Columns HERE -->
-            <th scope="col" style="font-size: 1.5vw">&#x1F525; {{sellerName}} &#x1F525; {{locationName.address_line_one}} {{locationName.city}} {{locationName.state}}</th>
+            <th scope="col" style="font-size:1.2em">&#x1F525; {{sellerName}} &#x1F525; {{locationName.address_line_one}} {{locationName.city}} {{locationName.state}}</th>
         </tr>
     </thead>
     <tbody>
         {% for i in sortedOrders %}
         <tr>
-            <td>{{loop.index}}. {{i[0]}}</td>
+            <td style="font-size: 1.2em">{{loop.index}}. {{i[0]}}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -32,7 +32,7 @@
         <form method="POST"> <input type="text" value="{{seller.merchant_id}},{{location.location_id}}"
                 style="padding-right:3px" name="content" hidden>
             <P hidden>{{seller.name}} {{location.address_line_one}} {{location.city}} {{location.state}}
-                {{location.postal_code}}</P><input type="submit" class="btn btn-light" style="border: 2px solid #ffffff"
+                {{location.postal_code}}</P><input type="submit" class="btn btn-light" style="font-size: 1em;border: 2px solid #ffffff"
                 value="{{seller.name}} &#x1F525 {{location.address_line_one}} {{location.city}} {{location.state}} {{location.postal_code}}">
         </form>
     </li>
